@@ -8,201 +8,202 @@
         body {
             margin: 0;
             padding: 0;
-            background-color: #e0f7fa; /* Тот самый голубой фон */
-            font-family: sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
             overflow: hidden;
+            background-color: #000;
             touch-action: none;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        #ui-layer {
-            text-align: center;
-            padding: 10px;
-            z-index: 20;
-            background: rgba(255,255,255,0.8);
-            width: 100%;
-            border-bottom: 2px solid #81d4fa;
-        }
-
-        .map-box {
-            display: inline-flex;
-            gap: 15px;
-            margin-top: 10px;
-            padding: 10px;
-            background: white;
-            border-radius: 10px;
-        }
-
-        .mini {
-            font-size: 30px;
-            padding: 5px;
-            border: 3px solid transparent;
-            border-radius: 8px;
-        }
-
-        .active-target {
-            border-color: #4caf50;
-            background: #e8f5e9;
-        }
-
-        #game-zone {
+        /* ОСНОВНОЙ ФОН */
+        #game-container {
             position: relative;
-            flex-grow: 1;
-            width: 100%;
-            background: #8bc34a; /* Зеленая трава */
-            display: flex;
-            flex-direction: column;
-            justify-content: space-around;
-            align-items: center;
+            width: 100vw;
+            height: 100vh;
+            background-image: url('fon.png'); 
+            background-size: cover;
+            background-position: center;
         }
 
+        /* КАРТА ПОДСКАЗКА (СВЕРХУ) */
+        #game-map {
+ <img src="map.png" 
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 180px;
+            height: auto;
+            border: 4px solid white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            z-index: 10;
+        }
+
+        /* КОЛОБОК (СПРАВА ПОСЕРЕДИНЕ) */
         #kolobok {
-            font-size: 80px;
-            cursor: pointer;
+ <img src="kolobok.png" 
+            position: absolute;
+            top: 50%;
+            right: 10%; /* Справа */
+            transform: translateY(-50%);
+            width: 120px; /* Можно менять размер под вашу картинку */
+            height: auto;
+            cursor: grab;
             z-index: 100;
-            position: relative;
             user-select: none;
-            transition: transform 0.1s;
-            display: block;
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3));
         }
 
-        #shelters-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            padding-bottom: 40px;
+        /* ЗОНА КУДА ПРЯТАТЬ (СЛЕВА ВНИЗУ) */
+        #target-zone {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 250px; /* Область захвата */
+            height: 250px;
+            /* background: rgba(0, 255, 0, 0.2); /* Раскомментируйте для теста зоны */
         }
 
-        .item {
-            font-size: 80px;
-            width: 120px;
-            height: 120px;
-            display: flex;
+        /* ПАНЕЛЬ ПОБЕДЫ */
+        #win-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            background: rgba(255,255,255,0.2);
-            border-radius: 20px;
-        }
-
-        #fox {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 60px;
-            transition: 0.5s;
-        }
-
-        #win-modal {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            display: none;
             z-index: 1000;
+            color: white;
             text-align: center;
         }
 
         button {
-            padding: 15px 30px;
-            font-size: 20px;
+            padding: 20px 50px;
+            font-size: 28px;
             background: #ff9800;
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 50px;
             cursor: pointer;
+            box-shadow: 0 5px #e65100;
+        }
+
+        button:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px #e65100;
         }
     </style>
 </head>
 <body>
 
-    <div id="ui-layer">
-        <b style="font-size: 20px;">СПРЯЧЬ КОЛОБКА!</b>
-
-        <span>Посмотри на карту:</span>
-        <div class="map-box" id="minimap"></div>
+    <div id="game-container">
+        <img src="map.png" id="game-map" alt="Карта">
+        <div id="target-zone"></div>
+        <img src="kolobok.png" id="kolobok" alt="Колобок">
     </div>
 
-    <div id="game-zone">
-        <div id="fox">🦊</div>
-        <div id="kolobok">🥯</div>
-        <div id="shelters-grid"></div>
-    </div>
-
-    <div id="win-modal" id="modal">
-        <h2 style="color: #2e7d32;">Ура! Лиса убежала! 🦊💨</h2>
+    <div id="win-screen">
+        <h1 style="font-size: 40px;">МОЛОДЕЦ! 🎉
+ЛИСА ТЕБЯ НЕ НАШЛА!</h1>
         <button onclick="location.reload()">ИГРАТЬ ЕЩЁ</button>
     </div>
 
     <script>
-        const data = [
-            { id: 't1', img: '🪵' },
-            { id: 't2', img: '🌿' },
-            { id: 't3', img: '🌲' },
-            { id: 't4', img: '🍄' }
-        ];
-
-        let goal = '';
         const kolobok = document.getElementById('kolobok');
-        const grid = document.getElementById('shelters-grid');
-        const minimap = document.getElementById('minimap');
+        const targetZone = document.getElementById('target-zone');
+        const winScreen = document.getElementById('win-screen');
 
-        function start() {
-            // Выбираем цель
-            const rand = Math
+        let isDragging = false;
+        let startX, startY, currentX = 0, currentY = 0;
+
+        // --- ЗВУКОВОЙ ДВИЖОК ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'win') {
+                // Восходящий радостный звук
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.4);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
 
 
-(Math.random() * data.length);
-            goal = data[rand].id;
-
-            // Рисуем карту
-            minimap.innerHTML = data.map(i => `
-                <div class="mini ${i.id === goal ? 'active-target' : ''}">${i.img}</div>
-            `).join('');
-
-            // Рисуем укрытия
-            grid.innerHTML = data.map(i => `
-                <div class="item" data-id="${i.id}">${i.img}</div>
-            `).join('');
+n.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.4);
+            } else if (type === 'fail') {
+                // Низкий звук ошибки
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(100, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+            }
         }
 
-        // Логика движения
-        let isMoving = false;
-        let offset = { x: 0, y: 0 };
-
-        function onStart(e) {
-            isMoving = true;
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            const rect = kolobok.getBoundingClientRect();
-            offset.x = clientX - rect.left - rect.width/2;
-            offset.y = clientY - rect.top - rect.height/2;
+        // --- ЛОГИКА ПЕРЕМЕЩЕНИЯ ---
+        function startDragging(e) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            isDragging = true;
+            const pos = e.touches ? e.touches[0] : e;
+            startX = pos.clientX - currentX;
+            startY = pos.clientY - currentY;
+            kolobok.style.transition = 'none';
         }
 
-        function onMove(e) {
-            if (!isMoving) return;
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            
-            const x = clientX - offset.x - (window.innerWidth / 2);
-            const y = clientY - offset.y - 250; // Примерная корректировка центра
-            
-            kolobok.style.transform = `translate(${x}px, ${y}px)`;
+        function drag(e) {
+            if (!isDragging) return;
+            e.preventDefault();
+            const pos = e.touches ? e.touches[0] : e;
+            currentX = pos.clientX - startX;
+            currentY = pos.clientY - startY;
+            kolobok.style.transform = `translate(${currentX}px, ${currentY}px)`;
         }
 
-        function onEnd(e) {
-            if (!isMoving) return;
-            isMoving = false;
+        function stopDragging() {
+            if (!isDragging) return;
+            isDragging = false;
 
             const kRect = kolobok.getBoundingClientRect();
-            const kX = kRect.left + kRect.width/2;
-            const kY = kRect.top + kRect.height/2;
+            const tRect = targetZone.getBoundingClientRect();
 
-            let hit = null;
-            document.querySelectorAll('.item').forEach(el.floor
+            // Проверка: попал ли центр колобка в зону
+            const kCenterX = kRect.left + kRect.width / 2;
+            const kCenterY = kRect.top + kRect.height / 2;
+
+            if (kCenterX < tRect.right && kCenterY > tRect.top) {
+                // ПОБЕДА
+                playSound('win');
+                winScreen.style.display = 'flex';
+                kolobok.style.display = 'none';
+            } else {
+                // ВОЗВРАТ
+                playSound('fail');
+                currentX = 0;
+                currentY = 0;
+                kolobok.style.transition = 'transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                kolobok.style.transform = 'translate(0px, 0px)';
+            }
+        }
+
+        // Мышь
+        kolobok.addEventListener('mousedown', startDragging);
+        window.addEventListener('mousemove', drag);
+        window.addEventListener('mouseup', stopDragging);
+
+        // Тач (для телефонов)
+        kolobok.addEventListener('touchstart', startDragging, {passive: false});
+        window.addEventListener('touchmove', drag, {passive: false});
+        window.addEventListener('touchend', stopDragging);
+
+    </script>
+</body>
+</html> gai
