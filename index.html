@@ -3,182 +3,206 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Спрячь Колобка от Лисы</title>
+    <title>Колобок: Прятки</title>
     <style>
-        :root {
-            --bg-color: #e0f7fa;
-            --grass-color: #8bc34a;
-            --accent-color: #ffeb3b;
-            --safe-color: #4caf50;
-        }
-
         body {
             margin: 0;
             padding: 0;
-            font-family: 'Comic Sans MS', 'Chalkboard SE', cursive;
-            background-color: var(--bg-color);
+            background-color: #e0f7fa; /* Тот самый голубой фон */
+            font-family: sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            overflow: hidden; /* Чтобы не было прокрутки на мобильных */
-            touch-action: none; /* Отключаем стандартные жесты браузера */
+            min-height: 100vh;
+            overflow: hidden;
+            touch-action: none;
         }
 
-        h1 {
-            color: #2e7d32;
-            margin: 10px 0;
-            font-size: 24px;
-            text-transform: uppercase;
-        }
-
-        /* --- Мини-карта --- */
-        #minimap-container {
-            background: white;
-            border: 4px solid #fff;
-            border-radius: 15px;
-            padding: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        #ui-layer {
             text-align: center;
-            margin-bottom: 20px;
+            padding: 10px;
+            z-index: 20;
+            background: rgba(255,255,255,0.8);
+            width: 100%;
+            border-bottom: 2px solid #81d4fa;
         }
 
-        .minimap-title {
-            font-size: 16px;
-            margin-bottom: 5px;
-            color: #555;
+        .map-box {
+            display: inline-flex;
+            gap: 15px;
+            margin-top: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 10px;
         }
 
-        .minimap-icons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-
-        .mini-icon {
+        .mini {
             font-size: 30px;
             padding: 5px;
-            border-radius: 10px;
             border: 3px solid transparent;
+            border-radius: 8px;
         }
 
-        .mini-icon.target {
-            border-color: var(--safe-color);
-            background-color: #e8f5e9;
-            animation: pulse 1.5s infinite;
+        .active-target {
+            border-color: #4caf50;
+            background: #e8f5e9;
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-
-        /* --- Игровое поле --- */
-        #game-field {
+        #game-zone {
             position: relative;
-            width: 100vw;
-            height: 60vh;
-            background-color: var(--grass-color);
-            border-top: 5px solid #689f38;
+            flex-grow: 1;
+            width: 100%;
+            background: #8bc34a; /* Зеленая трава */
             display: flex;
             flex-direction: column;
             justify-content: space-around;
             align-items: center;
         }
 
-        /* Лиса */
-        #fox {
-            position: absolute;
-            right: 10px;
-            top: 20px;
-            font-size: 60px;
-            transition: transform 0.5s;
-            z-index: 1;
-        }
-
-        .fox-hidden {
-            transform: translateX(150px);
-        }
-
-        /* Колобок */
         #kolobok {
-            font-size: 70px;
-            cursor: grab;
-            user-select: none;
-            z-index: 10;
-            touch-action: none;
-            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.2));
-            transition: transform 0.1s;
-        }
-
-        #kolobok:active {
-            cursor: grabbing;
-            transform: scale(1.1);
-        }
-
-        /* Сетка укрытий */
-        #shelters {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 40px;
-            margin-bottom: 20px;
-        }
-
-        .shelter {
             font-size: 80px;
-            width: 100px;
-            height: 100px;
+            cursor: pointer;
+            z-index: 100;
+            position: relative;
+            user-select: none;
+            transition: transform 0.1s;
+            display: block;
+        }
+
+        #shelters-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding-bottom: 40px;
+        }
+
+        .item {
+            font-size: 80px;
+            width: 120px;
+            height: 120px;
             display: flex;
             justify-content: center;
             align-items: center;
-            border-radius: 50%;
-            transition: background 0.3s;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
         }
 
-        .shake {
-            animation: shakeAnim 0.4s;
+        #fox {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 60px;
+            transition: 0.5s;
         }
 
-        @keyframes shakeAnim {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-        }
-
-        /* --- Сообщение о победе --- */
-        #win-message {
+        #win-modal {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             background: white;
             padding: 30px;
-
-
-border-radius: 20px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.3);
-            text-align: center;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             display: none;
-            z-index: 100;
+            z-index: 1000;
+            text-align: center;
         }
-
-        #win-message h2 { color: #f44336; }
 
         button {
             padding: 15px 30px;
             font-size: 20px;
-            background: #4caf50;
+            background: #ff9800;
             color: white;
             border: none;
-            border-radius: 50px;
+            border-radius: 10px;
             cursor: pointer;
-            box-shadow: 0 4px #2e7d32;
-        }
-
-        button:active {
-            box-shadow: 0 0;
-            transform: translateY(4px);
         }
     </style>
 </head>
 <body>
+
+    <div id="ui-layer">
+        <b style="font-size: 20px;">СПРЯЧЬ КОЛОБКА!</b>
+
+        <span>Посмотри на карту:</span>
+        <div class="map-box" id="minimap"></div>
+    </div>
+
+    <div id="game-zone">
+        <div id="fox">🦊</div>
+        <div id="kolobok">🥯</div>
+        <div id="shelters-grid"></div>
+    </div>
+
+    <div id="win-modal" id="modal">
+        <h2 style="color: #2e7d32;">Ура! Лиса убежала! 🦊💨</h2>
+        <button onclick="location.reload()">ИГРАТЬ ЕЩЁ</button>
+    </div>
+
+    <script>
+        const data = [
+            { id: 't1', img: '🪵' },
+            { id: 't2', img: '🌿' },
+            { id: 't3', img: '🌲' },
+            { id: 't4', img: '🍄' }
+        ];
+
+        let goal = '';
+        const kolobok = document.getElementById('kolobok');
+        const grid = document.getElementById('shelters-grid');
+        const minimap = document.getElementById('minimap');
+
+        function start() {
+            // Выбираем цель
+            const rand = Math
+
+
+(Math.random() * data.length);
+            goal = data[rand].id;
+
+            // Рисуем карту
+            minimap.innerHTML = data.map(i => `
+                <div class="mini ${i.id === goal ? 'active-target' : ''}">${i.img}</div>
+            `).join('');
+
+            // Рисуем укрытия
+            grid.innerHTML = data.map(i => `
+                <div class="item" data-id="${i.id}">${i.img}</div>
+            `).join('');
+        }
+
+        // Логика движения
+        let isMoving = false;
+        let offset = { x: 0, y: 0 };
+
+        function onStart(e) {
+            isMoving = true;
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            const rect = kolobok.getBoundingClientRect();
+            offset.x = clientX - rect.left - rect.width/2;
+            offset.y = clientY - rect.top - rect.height/2;
+        }
+
+        function onMove(e) {
+            if (!isMoving) return;
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            const x = clientX - offset.x - (window.innerWidth / 2);
+            const y = clientY - offset.y - 250; // Примерная корректировка центра
+            
+            kolobok.style.transform = `translate(${x}px, ${y}px)`;
+        }
+
+        function onEnd(e) {
+            if (!isMoving) return;
+            isMoving = false;
+
+            const kRect = kolobok.getBoundingClientRect();
+            const kX = kRect.left + kRect.width/2;
+            const kY = kRect.top + kRect.height/2;
+
+            let hit = null;
+            document.querySelectorAll('.item').forEach(el.floor
