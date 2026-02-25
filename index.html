@@ -5,9 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Спрячь Колобка</title>
     <style>
-        :root {
-            --game-width: 100%;
-            --game-height: 56.25vw; /* Соотношение 16:9 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -23,55 +26,107 @@
             touch-action: none;
         }
 
+        /* ЭКРАН ПОВОРОТА */
+        #rotate-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #1a4d2e;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        #rotate-screen.hidden {
+            display: none;
+        }
+
+        .rotate-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: rotate 2s infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(90deg); }
+            50% { transform: rotate(180deg); }
+            75% { transform: rotate(270deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .rotate-text {
+            font-size: 28px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .rotate-subtext {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
         /* ИГРОВОЙ КОНТЕЙНЕР */
         #game-container {
             position: relative;
-            width: var(--game-width);
-            max-width: 1000px;
-            aspect-ratio: 16/9;
-            background-color: #4CAF50; /* Запасной цвет */
+            width: 100vw;
+            height: 56.25vw; /* 16:9 соотношение */
+            max-width: 1200px;
+            max-height: 675px;
+            background-color: #4CAF50;
             overflow: hidden;
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            border-radius: 10px;
+            display: none; /* Скрыт по умолчанию */
         }
 
-        /* 1. ФОН (fon1.png) */
+        #game-container.landscape {
+            display: block;
+        }
+
+        /* 1. ФОН (fon2.png) */
         .background-layer {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: url('fon1.png'); /* ВАШ ФОН */
+            background-image: url('fon2.png');
             background-size: cover;
             background-position: center;
             z-index: 1;
         }
 
-        /* ВЕРХНЯЯ ПАНЕЛЬ С МИНИ-КАРТОЙ */
+        /* ВЕРХНЯЯ ПАНЕЛЬ */
         .ui-layer {
             position: absolute;
-            top: 0;
-            right: 0;
-            width: 100%;
-            padding: 10px;
-            box-sizing: border-box;
+            top: 10px;
+            right: 20px;
             z-index: 10;
             display: flex;
-            justify-content: flex-end; /* Прижимаем вправо */
+            flex-direction: column;
+            align-items: flex-end;
             pointer-events: none;
         }
 
-        /* 2. МИНИ-КАРТА (map.png) */
+        /* МИНИ-КАРТА */
         .mini-map-container {
             position: relative;
-            width: 150px; /* Размер мини-карты */
-            height: 84px;  /* Пропорция 16:9 */
-            border: 3px solid white;
-            border-radius: 8px;
+            width: 180px;
+            height: 101px; /* 16:9 */
+            border: 4px solid white;
+            border-radius: 12px;
             pointer-events: auto;
             background: #000;
-            overflow: hidden;
+            overflow: visible;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
         }
 
         .mini-map-img {
@@ -81,74 +136,105 @@
             display: block;
         }
 
-        /* Зеленый маркер на мини-карте (указывает на нижний левый угол) */
+        /* Маркер на карте */
         .safe-marker {
             position: absolute;
-            bottom: 5px;
-            left: 5px;
-            width: 20px;
-            height: 20px;
-            background-color: rgba(0, 255, 0, 0.6);
-            border: 2px solid #fff;
+            width: 25px;
+            height: 25px;
+            background-color: rgba(0, 255, 0, 0.7);
+            border: 3px solid white;
             border-radius: 50%;
-            box-shadow: 0 0 10px #0f0;
-            animation: pulse 1.5s infinite;
+            box-shadow: 0 0 15px #0f0;
+            animation: pulse 1.2s infinite;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 20;
         }
 
         @keyframes pulse {
-            0% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.2); opacity: 0.4; }
-            100% { transform: scale(1); opacity: 0.8; }
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+            50% { transform: translate(-50%, -50%) scale(1.3); opacity: 0.4; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
         }
 
-        /* ИГРОВОЕ ПОЛЕ (Зоны) */
-        .game-field {
+        /* ЛИСА */
+        .fox {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            bottom: 20px;
+            right: 20px;
+            width: 100px;
+            height: auto;
+            z-index: 15;
+            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3));
+            transition: opacity 0.5s;
+            pointer-events: none;
+        }
+
+        .fox.hidden {
+            opacity: 0;
+        }
+
+        /* УКРЫТИЯ */
+        .hiding-spot {
+            position: absolute;
+            width: 100px;
+            height: 100px;
             z-index: 5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
         }
 
-        /* Невидимые зоны для проверки попадания */
-        .drop-zone {
-            position: absolute;
-            width: 25%;
-            height: 25%;
-            /* border: 2px dashed red;  Раскомментируйте, чтобы видеть зоны при настройке */
-            z-index: 6;
+        .hiding-spot img {
+            width: 100%;
+            height: auto;
+            filter: drop-shadow(0 8px 5px rgba(0,0,0,0.3));
         }
 
-        /* Зона НИЖНИЙ ЛЕВЫЙ УГОЛ (Правильная) */
-        #zone-bl {
-            bottom: 10%;
-            left: 10%;
+        /* Позиции укрытий */
+        #spot-penek {
+            top: 15%;
+            left: 15%;
         }
 
-        /* 3. КОЛОБОК (Kolobok.png) */
+        #spot-grib {
+            top: 15%;
+            right: 15%;
+        }
+
+        #spot-kamen {
+            bottom: 15%;
+            right: 15%;
+        }
+
+        /* КОЛОБОК */
         #kolobok {
             position: absolute;
-            width: 120px; /* Размер колобка */
+            width: 120px;
             height: auto;
-            right: 20px;       /* Справа */
-            top: 50%;          /* По центру вертикали */
-            transform: translateY(-50%);
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
             z-index: 20;
             cursor: grab;
             touch-action: none;
             user-select: none;
-            transition: transform 0.1s;
+            transition: filter 0.2s;
+            filter: drop-shadow(0 8px 5px rgba(0,0,0,0.3));
         }
 
         #kolobok:active {
             cursor: grabbing;
-            transform: translateY(-50%) scale(1.1);
+            filter: drop-shadow(0 12px 8px rgba(0,0,0,0.4)) brightness(1.05);
         }
         
-        /* Класс для возврата на место */
         #kolobok.returning {
             transition: all 0.5s ease-out;
+        }
+
+        #kolobok.dragging {
+            transition: none;
         }
 
         /* ЭКРАН ПОБЕДЫ */
@@ -158,7 +244,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.6);
+            background: rgba(0,0,0,0.7);
             z-index: 100;
             display: none;
             flex-direction: column;
@@ -166,232 +252,417 @@
             align-items: center;
             color: white;
             text-align: center;
+            backdrop-filter: blur(5px);
         }
 
         #win-screen h2 {
-            font-size: 40px;
+            font-size: clamp(24px, 5vw, 48px);
             margin-bottom: 20px;
-            text-shadow: 0 0 10px gold;
+            text-shadow: 0 0 15px gold;
+        }
+
+        .win-buttons {
+            display: flex;
+            gap: 15px;
         }
 
         button {
             padding: 15px 30px;
-            font-size: 24px;
+            font-size: clamp(18px, 4vw, 24px);
             background: #4CAF50;
             color: white;
             border: none;
             border-radius: 50px;
             cursor: pointer;
             box-shadow: 0 5px 0 #2E7D32;
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            font-weight: bold;
+            transition: all 0.1s;
+            min-width: 150px;
         }
+
         button:active {
             transform: translateY(4px);
-            box-shadow: none;
+            box-shadow: 0 1px 0 #2E7D32;
         }
 
-        /* Анимация тряски при ошибке */
+        /* Анимация тряски */
         @keyframes shake {
             0% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            50% { transform: translateX(10px); }
-            75% { transform: translateX(-10px); }
+            20% { transform: translateX(-15px); }
+            40% { transform: translateX(15px); }
+            60% { transform: translateX(-10px); }
+            80% { transform: translateX(10px); }
             100% { transform: translateX(0); }
         }
-        .shake {
-            animation: shake 0.4s;
-        }
 
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
     </style>
 </head>
 <body>
 
-<div id="game-container">
-    <!-- 1. ФОН -->
-    <div class="background-layer"></div>
+    <!-- ЭКРАН ПОВОРОТА -->
+    <div id="rotate-screen">
+        <div class="rotate-icon">📱</div>
+        <div class="rotate-text">Переверните телефон</div>
+        <div class="rotate-subtext">Для игры нужен горизонтальный режим</div>
+    </div>
 
-    <!-- ВЕРХ: МИНИ-КАРТА -->
-    <div class="ui-layer">
-        <div class="mini-map-container">
-            <!-- 2. КАРТИНКА КАРТЫ -->
-            <img src="map.png" alt="Mini Map" class="mini-map-img">
-            <!-- Маркер правильного места (Нижний левый угол карты) -->
-            <div class="safe-marker"></div>
+    <!-- ИГРОВОЙ КОНТЕЙНЕР -->
+    <div id="game-container">
+        <!-- ФОН -->
+        <div class="background-layer"></div>
+
+        <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
+        <div class="ui-layer">
+            <div class="mini-map-container" id="miniMap">
+                <img src="map.png" alt="Карта" class="mini-map-img" id="mapImage">
+                <div class="safe-marker" id="safeMarker"></div>
+            </div>
+        </div>
+
+        <!-- ЛИСА -->
+        <img src="fox.png" alt="Лиса" class="fox" id="fox">
+
+        <!-- УКРЫТИЯ -->
+        <div class="hiding-spot" id="spot-penek">
+            <img src="penek.png" alt="Пенёк">
+        </div>
+        <div class="hiding-spot" id="spot-grib">
+            <img src="grib.png" alt="Гриб">
+        </div>
+        <div class="hiding-spot" id="spot-kamen">
+            <img src="kamen.png" alt="Камень">
+        </div>
+
+        <!-- КОЛОБОК -->
+        <img src="Kolobok.png" alt="Колобок" id="kolobok">
+
+        <!-- ЭКРАН ПОБЕДЫ -->
+        <div id="win-screen">
+            <h2>🎉 МОЛОДЕЦ!<br>КОЛОБОК СПРЯТАЛСЯ! 🎉</h2>
+            <div class="win-buttons">
+                <button onclick="newGame()">ИГРАТЬ ЕЩЁ</button>
+            </div>
         </div>
     </div>
 
-    <!-- ЗОНЫ (Невидимые области для проверки) -->
-    <div class="game-field">
-        <!-- Правильная зона: Нижний левый угол -->
-        <div class="drop-zone" id="zone-bl"></div>
-        
-        <!-- Остальные зоны (для отлова ошибок) -->
-        <div class="drop-zone" id="zone-tl" style="top:10%; left:10%"></div>
-        <div class="drop-zone" id="zone-tr" style="top:10%; right:10%"></div>
-        <div class="drop-zone" id="zone-br" style="bottom:10%; right:10%"></div>
-    </div>
+    <script>
+        // ========== ПРОВЕРКА ОРИЕНТАЦИИ ==========
+        const rotateScreen = document.getElementById('rotate-screen');
+        const gameContainer = document.getElementById('game-container');
 
-    <!-- 3. КОЛОБОК -->
-    <img src="Kolobok.png" id="kolobok" alt="Колобок">
-
-    <!-- ПОБЕДА -->
-    <div id="win-screen">
-        <h2>МОЛОДЕЦ!<br>КОЛОБОК СПРЯТАЛСЯ! 🎉</h2>
-        <button onclick="startGame()">ИГРАТЬ ЕЩЁ</button>
-    </div>
-</div>
-
-<script>
-    const kolobok = document.getElementById('kolobok');
-    const winScreen = document.getElementById('win-screen');
-    const container = document.getElementById('game-container');
-    
-    // Правильная зона жестко задана: Нижний Левый (Bottom-Left)
-    const SAFE_ZONE_ID = 'zone-bl'; 
-
-    let isDragging = false;
-    let startX, startY;
-
-    // Звуки (простой генератор)
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    function playSound(type) {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-
-        if (type === 'win') {
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(500, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.1);
-            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.5);
-        } else {
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-            osc.frequency.linearRampToValueAtTime(100, audioCtx.currentTime + 0.2);
-            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.2);
+        function checkOrientation() {
+            if (window.innerWidth > window.innerHeight) {
+                // Горизонтальная ориентация
+                rotateScreen.classList.add('hidden');
+                gameContainer.classList.add('landscape');
+                if (typeof initGame === 'function') initGame();
+            } else {
+                // Вертикальная ориентация
+                rotateScreen.classList.remove('hidden');
+                gameContainer.classList.remove('landscape');
+            }
         }
-    }
 
-    function startGame() {
-        winScreen.style.display = 'none';
-        kolobok.classList.remove('returning');
+        // Слушаем изменение ориентации
+        window.addEventListener('resize', checkOrientation);
+        window.addEventListener('orientationchange', checkOrientation);
         
-        // Возвращаем Колобка на старт (справа по центру)
-        kolobok.style.right = '20px';
-        kolobok.style.left = 'auto';
-        kolobok.style.top = '50%';
-        kolobok.style.transform = 'translateY(-50%)';
-    }
+        // Проверяем сразу при загрузке
+        window.addEventListener('load', checkOrientation);
 
-    // --- УПРАВЛЕНИЕ (DRAG & DROP) ---
+        // ========== ИГРОВАЯ ЛОГИКА ==========
+        const kolobok = document.getElementById('kolobok');
+        const winScreen = document.getElementById('win-screen');
+        const fox = document.getElementById('fox');
+        const container = document.getElementById('game-container');
+        const safeMarker = document.getElementById('safeMarker');
 
-    function onDragStart(e) {
-        if (winScreen.style.display === 'flex') return;
-        
-        isDragging = true;
-        kolobok.classList.remove('returning');
+        // Укрытия и их зоны (позиции для проверки)
+        const spots = [
+            { id: 'spot-penek', name: 'penek', x: 15, y: 15 },    // левый верх
+            { id: 'spot-grib', name: 'grib', x: 85, y: 15 },      // правый верх
+            { id: 'spot-kamen', name: 'kamen', x: 85, y: 85 }     // правый низ
+        ];
 
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        let safeSpot = null; // текущее безопасное укрытие
+        let isDragging = false;
+        let startX, startY, startLeft, startTop;
+        let audioContext = null;
 
-        // Запоминаем смещение, чтобы колобок не "прыгал" к курсору центром
-        const rect = kolobok.getBoundingClientRect();
-        startX = clientX - rect.left;
-        startY = clientY - rect.top;
-        
-        // Отключаем стандартное позиционирование для свободного движения
-        kolobok.style.transform = 'none';
-        kolobok.style.right = 'auto';
-        kolobok.style.top = (clientY - startY) + 'px';
-        kolobok.style.left = (clientX - startX) + 'px';
-    }
+        // Инициализация звука
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        }
 
-    function onDragMove(e) {
-        if (!isDragging) return;
-        e.preventDefault();
+        // Воспроизведение звука
+        function playSound(type) {
+            try {
+                initAudio();
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
 
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                if (type === 'win') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(500, audioContext.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(1000, audioContext.currentTime + 0.2);
+                    gain.gain.setValueAtTime(0.2, audioContext.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+                    osc.start();
+                    osc.stop(audioContext.currentTime + 0.4);
+                } else {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(200, audioContext.currentTime);
+                    gain.gain.setValueAtTime(0.15, audioContext.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                    osc.start();
+                    osc.stop(audioContext.currentTime + 0.2);
+                }
+            } catch (e) {
+                // Игнорируем ошибки звука
+            }
+        }
 
-        kolobok.style.left = (clientX - startX) + 'px';
-        kolobok.style.top = (clientY - startY) + 'px';
-    }
+        // Выбор случайного безопасного укрытия
+        function chooseRandomSafeSpot() {
+            const randomIndex = Math.floor(Math.random() * spots.length);
+            return spots[randomIndex];
+        }
 
-    function onDragEnd(e) {
-        if (!isDragging) return;
-        isDragging = false;
-        checkDrop();
-    }
-
-    function checkDrop() {
-        const kolobokRect = kolobok.getBoundingClientRect();
-        // Берем центр колобка
-        const kCenterX = kolobokRect.left + kolobokRect.width / 2;
-        const kCenterY = kolobokRect.top + kolobokRect.height / 2;
-
-        const safeZoneEl = document.getElementById(SAFE_ZONE_ID);
-        const zoneRect = safeZoneEl.getBoundingClientRect();
-
-        // Проверяем, попал ли центр колобка в зону нижнего левого угла
-        if (kCenterX >= zoneRect.left && kCenterX <= zoneRect.right &&
-            kCenterY >= zoneRect.top && kCenterY <= zoneRect.bottom) {
+        // Обновление маркера на карте
+        function updateMapMarker() {
+            if (!safeSpot) return;
             
-            handleWin();
-        } else {
-            handleLoss();
+            // Позиция маркера в процентах от карты
+            // Чем правее - больше left, чем ниже - больше top
+            const leftPercent = safeSpot.x;
+            const topPercent = safeSpot.y;
+            
+            safeMarker.style.left = leftPercent + '%';
+            safeMarker.style.top = topPercent + '%';
         }
-    }
 
-    function handleWin() {
-        playSound('win');
-        
-        // Прилепляем колобка точно в центр зоны
-        const zoneRect = document.getElementById(SAFE_ZONE_ID).getBoundingClientRect();
-        const containerRect = container.getBoundingClientRect();
-        
-        kolobok.style.left = (zoneRect.left - containerRect.left + zoneRect.width/2 - kolobok.offsetWidth/2) + 'px';
-        kolobok.style.top = (zoneRect.top - containerRect.top + zoneRect.height/2 - kolobok.offsetHeight/2) + 'px';
+        // Новая игра
+        function newGame() {
+            // Выбираем новое безопасное место
+            safeSpot = chooseRandomSafeSpot();
+            updateMapMarker();
+            
+            // Прячем экран победы
+            winScreen.style.display = 'none';
+            
+            // Показываем лису
+            fox.classList.remove('hidden');
+            
+            // Возвращаем Колобка в центр
+            resetKolobokToCenter();
+            
+            // Убираем класс возврата
+            kolobok.classList.remove('returning');
+            kolobok.classList.remove('dragging');
+        }
 
-        setTimeout(() => {
-            winScreen.style.display = 'flex';
-        }, 500);
-    }
+        // Возврат Колобка в центр
+        function resetKolobokToCenter() {
+            kolobok.style.left = '50%';
+            kolobok.style.top = '50%';
+            kolobok.style.transform = 'translate(-50%, -50%)';
+            kolobok.style.width = '120px';
+        }
 
-    function handleLoss() {
-        playSound('loss');
-        // Трясем экран
-        container.classList.add('shake');
-        setTimeout(() => container.classList.remove('shake'), 400);
-        returnToStart();
-    }
+        // Начало перетаскивания
+        function onDragStart(e) {
+            if (winScreen.style.display === 'flex') return;
+            if (!safeSpot) return;
+            
+            e.preventDefault();
+            initAudio();
+            
+            isDragging = true;
+            kolobok.classList.add('dragging');
+            kolobok.classList.remove('returning');
+            
+            // Получаем координаты касания/клика
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            // Получаем текущую позицию Колобка
+            const rect = kolobok.getBoundingClientRect();
+            const containerRect = container.getBoundingClientRect();
+            
+            // Вычисляем смещение от левого верхнего угла Колобка до точки касания
+            startX = clientX - rect.left;
+            startY = clientY - rect.top;
+            
+            // Запоминаем текущие позиции в px относительно контейнера
+            startLeft = rect.left - containerRect.left;
+            startTop = rect.top - containerRect.top;
+            
+            // Убираем transform для свободного перемещения
+            kolobok.style.transform = 'none';
+            kolobok.style.left = startLeft + 'px';
+            kolobok.style.top = startTop + 'px';
+            kolobok.style.width = rect.width + 'px';
+        }
 
-    function returnToStart() {
-        kolobok.classList.add('returning');
-        kolobok.style.right = '20px';
-        kolobok.style.left = 'auto';
-        kolobok.style.top = '50%';
-        kolobok.style.transform = 'translateY(-50%)';
-    }
+        // Перемещение
+        function onDragMove(e) {
+            if (!isDragging) return;
+            e.preventDefault();
+            
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            // Вычисляем новую позицию
+            const containerRect = container.getBoundingClientRect();
+            let newLeft = clientX - startX - containerRect.left;
+            let newTop = clientY - startY - containerRect.top;
+            
+            // Ограничиваем, чтобы Колобок не улетал за пределы
+            const kolobokWidth = kolobok.offsetWidth;
+            const kolobokHeight = kolobok.offsetHeight;
+            
+            newLeft = Math.max(0, Math.min(newLeft, containerRect.width - kolobokWidth));
+            newTop = Math.max(0, Math.min(newTop, containerRect.height - kolobokHeight));
+            
+            kolobok.style.left = newLeft + 'px';
+            kolobok.style.top = newTop + 'px';
+        }
 
-    // События
-    kolobok.addEventListener('mousedown', onDragStart);
-    window.addEventListener('mousemove', onDragMove);
-    window.addEventListener('mouseup', onDragEnd);
+        // Конец перетаскивания
+        function onDragEnd(e) {
+            if (!isDragging) return;
+            e.preventDefault();
+            
+            isDragging = false;
+            kolobok.classList.remove('dragging');
+            
+            // Проверяем, куда отпустили Колобка
+            checkDrop();
+        }
 
-    kolobok.addEventListener('touchstart', onDragStart, {passive: false});
-    window.addEventListener('touchmove', onDragMove, {passive: false});
-    window.addEventListener('touchend', onDragEnd);
+        // Проверка попадания
+        function checkDrop() {
+            if (!safeSpot) return;
+            
+            const kolobokRect = kolobok.getBoundingClientRect();
+            const kolobokCenterX = kolobokRect.left + kolobokRect.width / 2;
+            const kolobokCenterY = kolobokRect.top + kolobokRect.height / 2;
+            
+            // Получаем элемент безопасного укрытия
+            const spotElement = document.getElementById(safeSpot.id);
+            const spotRect = spotElement.getBoundingClientRect();
+            
+            // Проверяем, попадает ли центр Колобка в область укрытия
+            if (kolobokCenterX >= spotRect.left && kolobokCenterX <= spotRect.right &&
+                kolobokCenterY >= spotRect.top && kolobokCenterY <= spotRect.bottom) {
+                
+                // Победа!
+                handleWin(spotRect);
+            } else {
+                // Неудача
+                handleLoss();
+            }
+        }
 
-    // Старт
-    startGame();
+        // Обработка победы
+        function handleWin(spotRect) {
+            playSound('win');
+            
+            // Прячем лису
+            fox.classList.add('hidden');
+            
+            // Помещаем Колобка точно в центр укрытия
+            const containerRect = container.getBoundingClientRect();
+            const kolobokWidth = kolobok.offsetWidth;
+            const kolobokHeight = kolobok.offsetHeight;
+            
+            const targetLeft = spotRect.left - containerRect.left + (spotRect.width / 2) - (kolobokWidth / 2);
+            const targetTop = spotRect.top - containerRect.top + (spotRect.height / 2) - (kolobokHeight / 2);
+            
+            kolobok.style.left = targetLeft + 'px';
+            kolobok.style.top = targetTop + 'px';
+            kolobok.style.transform = 'none';
+            
+            // Показываем экран победы через небольшую паузу
+            setTimeout(() => {
+                winScreen.style.display = 'flex';
+            }, 300);
+        }
 
-</script>
+        // Обработка неудачи
+        function handleLoss() {
+            playSound('loss');
+            
+            // Трясём контейнер
+            container.classList.add('shake');
+            setTimeout(() => container.classList.remove('shake'), 500);
+            
+            // Возвращаем Колобка в центр
+            returnToCenter();
+        }
+
+        // Возврат в центр
+        function returnToCenter() {
+            kolobok.classList.add('returning');
+            
+            const containerRect = container.getBoundingClientRect();
+            const kolobokWidth = kolobok.offsetWidth;
+            const kolobokHeight = kolobok.offsetHeight;
+            
+            const centerLeft = (containerRect.width / 2) - (kolobokWidth / 2);
+            const centerTop = (containerRect.height / 2) - (kolobokHeight / 2);
+            
+            kolobok.style.left = centerLeft + 'px';
+            kolobok.style.top = centerTop + 'px';
+            kolobok.style.transform = 'none';
+        }
+
+        // Инициализация игры
+        function initGame() {
+            if (!gameContainer.classList.contains('landscape')) return;
+            
+            // Выбираем безопасное место
+            safeSpot = chooseRandomSafeSpot();
+            updateMapMarker();
+            
+            // Показываем лису
+            fox.classList.remove('hidden');
+            
+            // Ставим Колобка в центр
+            resetKolobokToCenter();
+            
+            // Скрываем экран победы
+            winScreen.style.display = 'none';
+        }
+
+        // Назначаем обработчики событий
+        kolobok.addEventListener('mousedown', onDragStart);
+        kolobok.addEventListener('touchstart', onDragStart, { passive: false });
+
+        window.addEventListener('mousemove', onDragMove);
+        window.addEventListener('touchmove', onDragMove, { passive: false });
+
+        window.addEventListener('mouseup', onDragEnd);
+        window.addEventListener('touchend', onDragEnd);
+
+        // Запускаем игру при загрузке страницы
+        window.addEventListener('load', () => {
+            setTimeout(checkOrientation, 100);
+        });
+
+        // Экспортируем функцию для кнопки
+        window.newGame = newGame;
+    </script>
 </body>
 </html>
