@@ -29,69 +29,17 @@
             align-items: center;
         }
 
-        /* ЭКРАН ПОВОРОТА */
-        #rotate-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #1a4d2e;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            text-align: center;
-            padding: 20px;
-        }
-
-        #rotate-screen.hidden {
-            display: none;
-        }
-
-        .rotate-icon {
-            font-size: min(80px, 15vw);
-            margin-bottom: 20px;
-            animation: rotate 2s infinite;
-        }
-
-        @keyframes rotate {
-            0% { transform: rotate(0deg); }
-            25% { transform: rotate(90deg); }
-            50% { transform: rotate(180deg); }
-            75% { transform: rotate(270deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .rotate-text {
-            font-size: min(28px, 6vw);
-            margin-bottom: 15px;
-            font-weight: bold;
-        }
-
-        .rotate-subtext {
-            font-size: min(18px, 4vw);
-            opacity: 0.9;
-        }
-
-        /* ИГРОВОЙ КОНТЕЙНЕР */
+        /* ИГРОВОЙ КОНТЕЙНЕР - ВЕРТИКАЛЬНЫЙ */
         #game-container {
             position: relative;
             width: 100vw;
-            height: 56.25vw; /* 16:9 соотношение */
-            max-width: 100vh; /* Не даём стать слишком широким */
+            height: 177.78vw; /* 9:16 соотношение (вертикальное) */
+            max-width: 100vh;
             max-height: 100vh;
             background-color: #4CAF50;
             overflow: hidden;
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            display: none; /* Скрыт по умолчанию */
             margin: auto;
-        }
-
-        #game-container.landscape {
-            display: block;
         }
 
         /* 1. ФОН (fon2.png) */
@@ -117,21 +65,21 @@
             flex-direction: column;
             align-items: flex-end;
             pointer-events: none;
-            max-width: 35%; /* Ограничиваем размер панели */
+            max-width: 35%;
         }
 
-        /* МИНИ-КАРТА - АДАПТИВНАЯ */
+        /* МИНИ-КАРТА */
         .mini-map-container {
             position: relative;
             width: 100%;
-            max-width: 280px;
+            max-width: 200px;
             aspect-ratio: 16/9;
-            border: min(5px, 0.5vw) solid white;
-            border-radius: min(16px, 2vw);
+            border: 3px solid white;
+            border-radius: 12px;
             pointer-events: auto;
             background: #000;
             overflow: visible;
-            box-shadow: 0 min(6px, 0.6vw) min(15px, 1.5vw) rgba(0,0,0,0.6);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.6);
             margin-bottom: 10px;
         }
 
@@ -140,18 +88,18 @@
             height: 100%;
             object-fit: cover;
             display: block;
-            border-radius: min(12px, 1.5vw);
+            border-radius: 10px;
         }
 
-        /* Маркер на карте - АДАПТИВНЫЙ */
+        /* Маркер на карте */
         .safe-marker {
             position: absolute;
-            width: min(45px, 4vw);
-            height: min(45px, 4vw);
+            width: 35px;
+            height: 35px;
             background-color: rgba(0, 255, 0, 0.6);
-            border: min(5px, 0.5vw) solid white;
+            border: 4px solid white;
             border-radius: 50%;
-            box-shadow: 0 0 min(25px, 2.5vw) #0f0, 0 0 min(40px, 4vw) #0f0;
+            box-shadow: 0 0 20px #0f0;
             animation: pulse 1.2s infinite;
             transform: translate(-50%, -50%);
             pointer-events: none;
@@ -164,15 +112,16 @@
             100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
         }
 
-        /* ЛИСА - АДАПТИВНАЯ */
+        /* ЛИСА */
         .fox {
             position: absolute;
-            bottom: 3%;
-            right: 3%;
-            width: min(180px, 18%);
+            bottom: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
             height: auto;
             z-index: 15;
-            filter: drop-shadow(0 min(10px, 1vw) min(10px, 1vw) rgba(0,0,0,0.5));
+            filter: drop-shadow(0 8px 8px rgba(0,0,0,0.5));
             transition: opacity 0.5s;
             pointer-events: none;
         }
@@ -181,10 +130,10 @@
             opacity: 0;
         }
 
-        /* УКРЫТИЯ - АДАПТИВНЫЕ */
+        /* УКРЫТИЯ */
         .hiding-spot {
             position: absolute;
-            width: min(180px, 16%);
+            width: 120px;
             height: auto;
             aspect-ratio: 1/1;
             z-index: 5;
@@ -197,45 +146,45 @@
         .hiding-spot img {
             width: 100%;
             height: auto;
-            filter: drop-shadow(0 min(12px, 1.2vw) min(10px, 1vw) rgba(0,0,0,0.5));
+            filter: drop-shadow(0 8px 8px rgba(0,0,0,0.5));
         }
 
-        /* Позиции укрытий - ВСЕ ВНИЗУ */
+        /* Позиции укрытий - ВНИЗУ */
         #spot-penek {
-            bottom: 5%;
-            left: 8%;
+            bottom: 18%;
+            left: 10%;
         }
 
         #spot-grib {
-            bottom: 5%;
+            bottom: 18%;
             left: 50%;
             transform: translateX(-50%);
         }
 
         #spot-kamen {
-            bottom: 5%;
-            right: 8%;
+            bottom: 18%;
+            right: 10%;
         }
 
-        /* КОЛОБОК - АДАПТИВНЫЙ */
+        /* КОЛОБОК */
         #kolobok {
             position: absolute;
-            width: min(160px, 15%);
+            width: 120px;
             height: auto;
             left: 50%;
-            top: 40%;
+            top: 45%;
             transform: translate(-50%, -50%);
             z-index: 20;
             cursor: grab;
             touch-action: none;
             user-select: none;
             transition: filter 0.2s;
-            filter: drop-shadow(0 min(12px, 1.2vw) min(10px, 1vw) rgba(0,0,0,0.5));
+            filter: drop-shadow(0 8px 8px rgba(0,0,0,0.5));
         }
 
         #kolobok:active {
             cursor: grabbing;
-            filter: drop-shadow(0 min(18px, 1.8vw) min(12px, 1.2vw) rgba(0,0,0,0.6)) brightness(1.05);
+            filter: drop-shadow(0 12px 10px rgba(0,0,0,0.6)) brightness(1.05);
         }
         
         #kolobok.returning {
@@ -265,45 +214,38 @@
         }
 
         #win-screen h2 {
-            font-size: clamp(20px, 6vw, 48px);
+            font-size: 32px;
             margin-bottom: 20px;
             text-shadow: 0 0 15px gold;
             padding: 0 10px;
         }
 
-        .win-buttons {
-            display: flex;
-            gap: min(15px, 2vw);
-        }
-
         button {
-            padding: min(15px, 2vw) min(30px, 4vw);
-            font-size: clamp(16px, 4vw, 24px);
+            padding: 15px 30px;
+            font-size: 24px;
             background: #4CAF50;
             color: white;
             border: none;
-            border-radius: min(50px, 6vw);
+            border-radius: 50px;
             cursor: pointer;
-            box-shadow: 0 min(5px, 0.5vw) 0 #2E7D32;
+            box-shadow: 0 5px 0 #2E7D32;
             font-family: 'Comic Sans MS', 'Arial', sans-serif;
             font-weight: bold;
             transition: all 0.1s;
-            min-width: min(150px, 30vw);
-            white-space: nowrap;
         }
 
         button:active {
-            transform: translateY(min(4px, 0.4vw));
-            box-shadow: 0 min(1px, 0.1vw) 0 #2E7D32;
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 #2E7D32;
         }
 
         /* Анимация тряски */
         @keyframes shake {
             0% { transform: translateX(0); }
-            20% { transform: translateX(-2%); }
-            40% { transform: translateX(2%); }
-            60% { transform: translateX(-1.5%); }
-            80% { transform: translateX(1.5%); }
+            20% { transform: translateX(-10px); }
+            40% { transform: translateX(10px); }
+            60% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
             100% { transform: translateX(0); }
         }
 
@@ -313,13 +255,6 @@
     </style>
 </head>
 <body>
-
-    <!-- ЭКРАН ПОВОРОТА -->
-    <div id="rotate-screen">
-        <div class="rotate-icon">📱</div>
-        <div class="rotate-text">Переверните телефон</div>
-        <div class="rotate-subtext">Для игры нужен горизонтальный режим</div>
-    </div>
 
     <!-- ИГРОВОЙ КОНТЕЙНЕР -->
     <div id="game-container">
@@ -354,43 +289,11 @@
         <!-- ЭКРАН ПОБЕДЫ -->
         <div id="win-screen">
             <h2>🎉 МОЛОДЕЦ!<br>КОЛОБОК СПРЯТАЛСЯ! 🎉</h2>
-            <div class="win-buttons">
-                <button onclick="newGame()">ИГРАТЬ ЕЩЁ</button>
-            </div>
+            <button onclick="newGame()">ИГРАТЬ ЕЩЁ</button>
         </div>
     </div>
 
     <script>
-        // ========== ПРОВЕРКА ОРИЕНТАЦИИ ==========
-        const rotateScreen = document.getElementById('rotate-screen');
-        const gameContainer = document.getElementById('game-container');
-
-        function checkOrientation() {
-            if (window.innerWidth > window.innerHeight) {
-                // Горизонтальная ориентация
-                rotateScreen.classList.add('hidden');
-                gameContainer.classList.add('landscape');
-                
-                // Корректируем размер контейнера под экран
-                const container = document.getElementById('game-container');
-                const maxWidth = window.innerHeight * 0.95;
-                container.style.maxWidth = maxWidth + 'px';
-                
-                if (typeof initGame === 'function') initGame();
-            } else {
-                // Вертикальная ориентация
-                rotateScreen.classList.remove('hidden');
-                gameContainer.classList.remove('landscape');
-            }
-        }
-
-        // Слушаем изменение ориентации
-        window.addEventListener('resize', checkOrientation);
-        window.addEventListener('orientationchange', checkOrientation);
-        
-        // Проверяем сразу при загрузке
-        window.addEventListener('load', checkOrientation);
-
         // ========== ИГРОВАЯ ЛОГИКА ==========
         const kolobok = document.getElementById('kolobok');
         const winScreen = document.getElementById('win-screen');
@@ -490,7 +393,7 @@
         // Возврат Колобка на стартовую позицию
         function resetKolobokToStart() {
             kolobok.style.left = '50%';
-            kolobok.style.top = '40%';
+            kolobok.style.top = '45%';
             kolobok.style.transform = 'translate(-50%, -50%)';
         }
 
@@ -616,7 +519,7 @@
             const kolobokHeight = kolobok.offsetHeight;
             
             const startLeft = (containerRect.width / 2) - (kolobokWidth / 2);
-            const startTop = (containerRect.height * 0.4) - (kolobokHeight / 2);
+            const startTop = (containerRect.height * 0.45) - (kolobokHeight / 2);
             
             kolobok.style.left = startLeft + 'px';
             kolobok.style.top = startTop + 'px';
@@ -625,8 +528,6 @@
 
         // Инициализация игры
         function initGame() {
-            if (!gameContainer.classList.contains('landscape')) return;
-            
             safeSpot = chooseRandomSafeSpot();
             updateMapMarker();
             
@@ -646,10 +547,8 @@
         window.addEventListener('mouseup', onDragEnd);
         window.addEventListener('touchend', onDragEnd);
 
-        // Запускаем игру при загрузке страницы
-        window.addEventListener('load', () => {
-            setTimeout(checkOrientation, 100);
-        });
+        // Запускаем игру
+        window.addEventListener('load', initGame);
 
         // Экспортируем функцию для кнопки
         window.newGame = newGame;
