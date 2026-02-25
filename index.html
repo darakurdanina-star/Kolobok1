@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Спрячь Колобка</title>
     <style>
         * {
@@ -13,17 +13,20 @@
             -webkit-tap-highlight-color: transparent;
         }
 
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: fixed;
+            touch-action: none;
+        }
+
         body {
-            margin: 0;
-            padding: 0;
             font-family: 'Comic Sans MS', 'Arial', sans-serif;
             background-color: #2c3e50;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            overflow: hidden;
-            touch-action: none;
         }
 
         /* ЭКРАН ПОВОРОТА */
@@ -49,7 +52,7 @@
         }
 
         .rotate-icon {
-            font-size: 80px;
+            font-size: min(80px, 15vw);
             margin-bottom: 20px;
             animation: rotate 2s infinite;
         }
@@ -63,13 +66,13 @@
         }
 
         .rotate-text {
-            font-size: 28px;
+            font-size: min(28px, 6vw);
             margin-bottom: 15px;
             font-weight: bold;
         }
 
         .rotate-subtext {
-            font-size: 18px;
+            font-size: min(18px, 4vw);
             opacity: 0.9;
         }
 
@@ -78,12 +81,13 @@
             position: relative;
             width: 100vw;
             height: 56.25vw; /* 16:9 соотношение */
-            max-width: 1200px;
-            max-height: 675px;
+            max-width: 100vh; /* Не даём стать слишком широким */
+            max-height: 100vh;
             background-color: #4CAF50;
             overflow: hidden;
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
             display: none; /* Скрыт по умолчанию */
+            margin: auto;
         }
 
         #game-container.landscape {
@@ -106,27 +110,29 @@
         /* ВЕРХНЯЯ ПАНЕЛЬ */
         .ui-layer {
             position: absolute;
-            top: 10px;
-            right: 20px;
+            top: 2%;
+            right: 2%;
             z-index: 10;
             display: flex;
             flex-direction: column;
             align-items: flex-end;
             pointer-events: none;
+            max-width: 35%; /* Ограничиваем размер панели */
         }
 
-        /* МИНИ-КАРТА - УВЕЛИЧЕНА */
+        /* МИНИ-КАРТА - АДАПТИВНАЯ */
         .mini-map-container {
             position: relative;
-            width: 280px;  /* Увеличено */
-            height: 158px; /* 16:9 */
-            border: 5px solid white;
-            border-radius: 16px;
+            width: 100%;
+            max-width: 280px;
+            aspect-ratio: 16/9;
+            border: min(5px, 0.5vw) solid white;
+            border-radius: min(16px, 2vw);
             pointer-events: auto;
             background: #000;
             overflow: visible;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.6);
-            margin-bottom: 15px;
+            box-shadow: 0 min(6px, 0.6vw) min(15px, 1.5vw) rgba(0,0,0,0.6);
+            margin-bottom: 10px;
         }
 
         .mini-map-img {
@@ -134,18 +140,18 @@
             height: 100%;
             object-fit: cover;
             display: block;
-            border-radius: 12px;
+            border-radius: min(12px, 1.5vw);
         }
 
-        /* Маркер на карте - КРУПНЕЕ */
+        /* Маркер на карте - АДАПТИВНЫЙ */
         .safe-marker {
             position: absolute;
-            width: 45px;    /* Увеличено */
-            height: 45px;   /* Увеличено */
+            width: min(45px, 4vw);
+            height: min(45px, 4vw);
             background-color: rgba(0, 255, 0, 0.6);
-            border: 5px solid white;
+            border: min(5px, 0.5vw) solid white;
             border-radius: 50%;
-            box-shadow: 0 0 25px #0f0, 0 0 40px #0f0;
+            box-shadow: 0 0 min(25px, 2.5vw) #0f0, 0 0 min(40px, 4vw) #0f0;
             animation: pulse 1.2s infinite;
             transform: translate(-50%, -50%);
             pointer-events: none;
@@ -158,15 +164,15 @@
             100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
         }
 
-        /* ЛИСА - ОЧЕНЬ КРУПНАЯ */
+        /* ЛИСА - АДАПТИВНАЯ */
         .fox {
             position: absolute;
-            bottom: 30px;
-            right: 30px;
-            width: 180px; /* Увеличено */
+            bottom: 3%;
+            right: 3%;
+            width: min(180px, 18%);
             height: auto;
             z-index: 15;
-            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5));
+            filter: drop-shadow(0 min(10px, 1vw) min(10px, 1vw) rgba(0,0,0,0.5));
             transition: opacity 0.5s;
             pointer-events: none;
         }
@@ -175,11 +181,12 @@
             opacity: 0;
         }
 
-        /* УКРЫТИЯ - ОЧЕНЬ КРУПНЫЕ */
+        /* УКРЫТИЯ - АДАПТИВНЫЕ */
         .hiding-spot {
             position: absolute;
-            width: 180px;  /* Увеличено */
-            height: 180px;
+            width: min(180px, 16%);
+            height: auto;
+            aspect-ratio: 1/1;
             z-index: 5;
             display: flex;
             justify-content: center;
@@ -190,13 +197,13 @@
         .hiding-spot img {
             width: 100%;
             height: auto;
-            filter: drop-shadow(0 12px 10px rgba(0,0,0,0.5));
+            filter: drop-shadow(0 min(12px, 1.2vw) min(10px, 1vw) rgba(0,0,0,0.5));
         }
 
         /* Позиции укрытий - ВСЕ ВНИЗУ */
         #spot-penek {
             bottom: 5%;
-            left: 10%;
+            left: 8%;
         }
 
         #spot-grib {
@@ -207,28 +214,28 @@
 
         #spot-kamen {
             bottom: 5%;
-            right: 10%;
+            right: 8%;
         }
 
-        /* КОЛОБОК - КРУПНЫЙ */
+        /* КОЛОБОК - АДАПТИВНЫЙ */
         #kolobok {
             position: absolute;
-            width: 160px; /* Увеличено */
+            width: min(160px, 15%);
             height: auto;
             left: 50%;
-            top: 40%; /* Выше, чтобы не наезжать на укрытия */
+            top: 40%;
             transform: translate(-50%, -50%);
             z-index: 20;
             cursor: grab;
             touch-action: none;
             user-select: none;
             transition: filter 0.2s;
-            filter: drop-shadow(0 12px 10px rgba(0,0,0,0.5));
+            filter: drop-shadow(0 min(12px, 1.2vw) min(10px, 1vw) rgba(0,0,0,0.5));
         }
 
         #kolobok:active {
             cursor: grabbing;
-            filter: drop-shadow(0 18px 12px rgba(0,0,0,0.6)) brightness(1.05);
+            filter: drop-shadow(0 min(18px, 1.8vw) min(12px, 1.2vw) rgba(0,0,0,0.6)) brightness(1.05);
         }
         
         #kolobok.returning {
@@ -258,43 +265,45 @@
         }
 
         #win-screen h2 {
-            font-size: clamp(24px, 5vw, 48px);
+            font-size: clamp(20px, 6vw, 48px);
             margin-bottom: 20px;
             text-shadow: 0 0 15px gold;
+            padding: 0 10px;
         }
 
         .win-buttons {
             display: flex;
-            gap: 15px;
+            gap: min(15px, 2vw);
         }
 
         button {
-            padding: 15px 30px;
-            font-size: clamp(18px, 4vw, 24px);
+            padding: min(15px, 2vw) min(30px, 4vw);
+            font-size: clamp(16px, 4vw, 24px);
             background: #4CAF50;
             color: white;
             border: none;
-            border-radius: 50px;
+            border-radius: min(50px, 6vw);
             cursor: pointer;
-            box-shadow: 0 5px 0 #2E7D32;
+            box-shadow: 0 min(5px, 0.5vw) 0 #2E7D32;
             font-family: 'Comic Sans MS', 'Arial', sans-serif;
             font-weight: bold;
             transition: all 0.1s;
-            min-width: 150px;
+            min-width: min(150px, 30vw);
+            white-space: nowrap;
         }
 
         button:active {
-            transform: translateY(4px);
-            box-shadow: 0 1px 0 #2E7D32;
+            transform: translateY(min(4px, 0.4vw));
+            box-shadow: 0 min(1px, 0.1vw) 0 #2E7D32;
         }
 
         /* Анимация тряски */
         @keyframes shake {
             0% { transform: translateX(0); }
-            20% { transform: translateX(-15px); }
-            40% { transform: translateX(15px); }
-            60% { transform: translateX(-10px); }
-            80% { transform: translateX(10px); }
+            20% { transform: translateX(-2%); }
+            40% { transform: translateX(2%); }
+            60% { transform: translateX(-1.5%); }
+            80% { transform: translateX(1.5%); }
             100% { transform: translateX(0); }
         }
 
@@ -325,10 +334,10 @@
             </div>
         </div>
 
-        <!-- ЛИСА - КРУПНАЯ ВНИЗУ СПРАВА -->
+        <!-- ЛИСА -->
         <img src="fox.png" alt="Лиса" class="fox" id="fox">
 
-        <!-- УКРЫТИЯ - ВСЕ ВНИЗУ -->
+        <!-- УКРЫТИЯ -->
         <div class="hiding-spot" id="spot-penek">
             <img src="penek.png" alt="Пенёк">
         </div>
@@ -361,6 +370,12 @@
                 // Горизонтальная ориентация
                 rotateScreen.classList.add('hidden');
                 gameContainer.classList.add('landscape');
+                
+                // Корректируем размер контейнера под экран
+                const container = document.getElementById('game-container');
+                const maxWidth = window.innerHeight * 0.95;
+                container.style.maxWidth = maxWidth + 'px';
+                
                 if (typeof initGame === 'function') initGame();
             } else {
                 // Вертикальная ориентация
@@ -383,29 +398,29 @@
         const container = document.getElementById('game-container');
         const safeMarker = document.getElementById('safeMarker');
 
-        // Укрытия и их зоны (все внизу)
+        // Укрытия и их зоны
         const spots = [
             { 
                 id: 'spot-penek', 
                 name: 'penek', 
-                mapX: 10,  // % от левого края карты
-                mapY: 85   // % от верхнего края карты (85% = близко к низу)
+                mapX: 10,
+                mapY: 85
             },
             { 
                 id: 'spot-grib', 
                 name: 'grib', 
-                mapX: 50,  // центр
+                mapX: 50,
                 mapY: 85
             },
             { 
                 id: 'spot-kamen', 
                 name: 'kamen', 
-                mapX: 90,  // справа
+                mapX: 90,
                 mapY: 85
             }
         ];
 
-        let safeSpot = null; // текущее безопасное укрытие
+        let safeSpot = null;
         let isDragging = false;
         let startX, startY, startLeft, startTop;
         let audioContext = null;
@@ -445,9 +460,7 @@
                     osc.start();
                     osc.stop(audioContext.currentTime + 0.2);
                 }
-            } catch (e) {
-                // Игнорируем ошибки звука
-            }
+            } catch (e) {}
         }
 
         // Выбор случайного безопасного укрытия
@@ -459,28 +472,17 @@
         // Обновление маркера на карте
         function updateMapMarker() {
             if (!safeSpot) return;
-            
-            // Устанавливаем маркер на координаты безопасного места
             safeMarker.style.left = safeSpot.mapX + '%';
             safeMarker.style.top = safeSpot.mapY + '%';
         }
 
         // Новая игра
         function newGame() {
-            // Выбираем новое безопасное место
             safeSpot = chooseRandomSafeSpot();
             updateMapMarker();
-            
-            // Прячем экран победы
             winScreen.style.display = 'none';
-            
-            // Показываем лису
             fox.classList.remove('hidden');
-            
-            // Возвращаем Колобка на стартовую позицию
             resetKolobokToStart();
-            
-            // Убираем класс возврата
             kolobok.classList.remove('returning');
             kolobok.classList.remove('dragging');
         }
@@ -490,7 +492,6 @@
             kolobok.style.left = '50%';
             kolobok.style.top = '40%';
             kolobok.style.transform = 'translate(-50%, -50%)';
-            kolobok.style.width = '160px';
         }
 
         // Начало перетаскивания
@@ -505,27 +506,21 @@
             kolobok.classList.add('dragging');
             kolobok.classList.remove('returning');
             
-            // Получаем координаты касания/клика
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
             
-            // Получаем текущую позицию Колобка
             const rect = kolobok.getBoundingClientRect();
             const containerRect = container.getBoundingClientRect();
             
-            // Вычисляем смещение от левого верхнего угла Колобка до точки касания
             startX = clientX - rect.left;
             startY = clientY - rect.top;
             
-            // Запоминаем текущие позиции в px относительно контейнера
             startLeft = rect.left - containerRect.left;
             startTop = rect.top - containerRect.top;
             
-            // Убираем transform для свободного перемещения
             kolobok.style.transform = 'none';
             kolobok.style.left = startLeft + 'px';
             kolobok.style.top = startTop + 'px';
-            kolobok.style.width = rect.width + 'px';
         }
 
         // Перемещение
@@ -536,12 +531,10 @@
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
             
-            // Вычисляем новую позицию
             const containerRect = container.getBoundingClientRect();
             let newLeft = clientX - startX - containerRect.left;
             let newTop = clientY - startY - containerRect.top;
             
-            // Ограничиваем, чтобы Колобок не улетал за пределы
             const kolobokWidth = kolobok.offsetWidth;
             const kolobokHeight = kolobok.offsetHeight;
             
@@ -559,8 +552,6 @@
             
             isDragging = false;
             kolobok.classList.remove('dragging');
-            
-            // Проверяем, куда отпустили Колобка
             checkDrop();
         }
 
@@ -572,18 +563,14 @@
             const kolobokCenterX = kolobokRect.left + kolobokRect.width / 2;
             const kolobokCenterY = kolobokRect.top + kolobokRect.height / 2;
             
-            // Получаем элемент безопасного укрытия
             const spotElement = document.getElementById(safeSpot.id);
             const spotRect = spotElement.getBoundingClientRect();
             
-            // Проверяем, попадает ли центр Колобка в область укрытия
             if (kolobokCenterX >= spotRect.left && kolobokCenterX <= spotRect.right &&
                 kolobokCenterY >= spotRect.top && kolobokCenterY <= spotRect.bottom) {
                 
-                // Победа!
                 handleWin(spotRect);
             } else {
-                // Неудача
                 handleLoss();
             }
         }
@@ -592,10 +579,8 @@
         function handleWin(spotRect) {
             playSound('win');
             
-            // Прячем лису
             fox.classList.add('hidden');
             
-            // Помещаем Колобка точно в центр укрытия
             const containerRect = container.getBoundingClientRect();
             const kolobokWidth = kolobok.offsetWidth;
             const kolobokHeight = kolobok.offsetHeight;
@@ -607,7 +592,6 @@
             kolobok.style.top = targetTop + 'px';
             kolobok.style.transform = 'none';
             
-            // Показываем экран победы через небольшую паузу
             setTimeout(() => {
                 winScreen.style.display = 'flex';
             }, 300);
@@ -617,11 +601,9 @@
         function handleLoss() {
             playSound('loss');
             
-            // Трясём контейнер
             container.classList.add('shake');
             setTimeout(() => container.classList.remove('shake'), 500);
             
-            // Возвращаем Колобка на старт
             returnToStart();
         }
 
@@ -633,7 +615,6 @@
             const kolobokWidth = kolobok.offsetWidth;
             const kolobokHeight = kolobok.offsetHeight;
             
-            // Стартовая позиция: центр по горизонтали, 40% сверху
             const startLeft = (containerRect.width / 2) - (kolobokWidth / 2);
             const startTop = (containerRect.height * 0.4) - (kolobokHeight / 2);
             
@@ -646,17 +627,12 @@
         function initGame() {
             if (!gameContainer.classList.contains('landscape')) return;
             
-            // Выбираем безопасное место
             safeSpot = chooseRandomSafeSpot();
             updateMapMarker();
             
-            // Показываем лису
             fox.classList.remove('hidden');
-            
-            // Ставим Колобка на старт
             resetKolobokToStart();
             
-            // Скрываем экран победы
             winScreen.style.display = 'none';
         }
 
