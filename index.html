@@ -90,14 +90,14 @@
             display: block;
         }
 
-        /* 1. ФОН (fon2.png) */
+        /* 1. ФОН (fon1.png) */
         .background-layer {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: url('fon2.png');
+            background-image: url('fon1.png');
             background-size: cover;
             background-position: center;
             z-index: 1;
@@ -118,8 +118,8 @@
         /* МИНИ-КАРТА */
         .mini-map-container {
             position: relative;
-            width: 180px;
-            height: 101px; /* 16:9 */
+            width: 200px;
+            height: 113px; /* 16:9 */
             border: 4px solid white;
             border-radius: 12px;
             pointer-events: auto;
@@ -139,12 +139,12 @@
         /* Маркер на карте */
         .safe-marker {
             position: absolute;
-            width: 25px;
-            height: 25px;
+            width: 30px;
+            height: 30px;
             background-color: rgba(0, 255, 0, 0.7);
-            border: 3px solid white;
+            border: 4px solid white;
             border-radius: 50%;
-            box-shadow: 0 0 15px #0f0;
+            box-shadow: 0 0 20px #0f0;
             animation: pulse 1.2s infinite;
             transform: translate(-50%, -50%);
             pointer-events: none;
@@ -157,15 +157,15 @@
             100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
         }
 
-        /* ЛИСА */
+        /* ЛИСА - КРУПНАЯ */
         .fox {
             position: absolute;
-            bottom: 20px;
-            right: 20px;
-            width: 100px;
+            bottom: 30px;
+            right: 30px;
+            width: 150px; /* Увеличено */
             height: auto;
             z-index: 15;
-            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3));
+            filter: drop-shadow(0 8px 8px rgba(0,0,0,0.4));
             transition: opacity 0.5s;
             pointer-events: none;
         }
@@ -174,11 +174,11 @@
             opacity: 0;
         }
 
-        /* УКРЫТИЯ */
+        /* УКРЫТИЯ - ВСЕ ВНИЗУ И КРУПНЫЕ */
         .hiding-spot {
             position: absolute;
-            width: 100px;
-            height: 100px;
+            width: 140px; /* Увеличено */
+            height: 140px;
             z-index: 5;
             display: flex;
             justify-content: center;
@@ -189,44 +189,45 @@
         .hiding-spot img {
             width: 100%;
             height: auto;
-            filter: drop-shadow(0 8px 5px rgba(0,0,0,0.3));
+            filter: drop-shadow(0 10px 8px rgba(0,0,0,0.4));
         }
 
-        /* Позиции укрытий */
+        /* Позиции укрытий - ВСЕ ВНИЗУ */
         #spot-penek {
-            top: 15%;
+            bottom: 10%;
             left: 15%;
         }
 
         #spot-grib {
-            top: 15%;
-            right: 15%;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
         }
 
         #spot-kamen {
-            bottom: 15%;
+            bottom: 10%;
             right: 15%;
         }
 
         /* КОЛОБОК */
         #kolobok {
             position: absolute;
-            width: 120px;
+            width: 140px; /* Увеличено */
             height: auto;
             left: 50%;
-            top: 50%;
+            top: 45%; /* Чуть выше центра, чтобы не наезжать на укрытия */
             transform: translate(-50%, -50%);
             z-index: 20;
             cursor: grab;
             touch-action: none;
             user-select: none;
             transition: filter 0.2s;
-            filter: drop-shadow(0 8px 5px rgba(0,0,0,0.3));
+            filter: drop-shadow(0 10px 8px rgba(0,0,0,0.4));
         }
 
         #kolobok:active {
             cursor: grabbing;
-            filter: drop-shadow(0 12px 8px rgba(0,0,0,0.4)) brightness(1.05);
+            filter: drop-shadow(0 15px 10px rgba(0,0,0,0.5)) brightness(1.05);
         }
         
         #kolobok.returning {
@@ -323,10 +324,10 @@
             </div>
         </div>
 
-        <!-- ЛИСА -->
+        <!-- ЛИСА - КРУПНАЯ ВНИЗУ СПРАВА -->
         <img src="fox.png" alt="Лиса" class="fox" id="fox">
 
-        <!-- УКРЫТИЯ -->
+        <!-- УКРЫТИЯ - ВСЕ ВНИЗУ -->
         <div class="hiding-spot" id="spot-penek">
             <img src="penek.png" alt="Пенёк">
         </div>
@@ -381,11 +382,11 @@
         const container = document.getElementById('game-container');
         const safeMarker = document.getElementById('safeMarker');
 
-        // Укрытия и их зоны (позиции для проверки)
+        // Укрытия и их зоны (все внизу)
         const spots = [
-            { id: 'spot-penek', name: 'penek', x: 15, y: 15 },    // левый верх
-            { id: 'spot-grib', name: 'grib', x: 85, y: 15 },      // правый верх
-            { id: 'spot-kamen', name: 'kamen', x: 85, y: 85 }     // правый низ
+            { id: 'spot-penek', name: 'penek', x: 15, y: 90 },    // слева внизу
+            { id: 'spot-grib', name: 'grib', x: 50, y: 90 },      // по центру внизу
+            { id: 'spot-kamen', name: 'kamen', x: 85, y: 90 }     // справа внизу
         ];
 
         let safeSpot = null; // текущее безопасное укрытие
@@ -444,7 +445,6 @@
             if (!safeSpot) return;
             
             // Позиция маркера в процентах от карты
-            // Чем правее - больше left, чем ниже - больше top
             const leftPercent = safeSpot.x;
             const topPercent = safeSpot.y;
             
@@ -464,20 +464,20 @@
             // Показываем лису
             fox.classList.remove('hidden');
             
-            // Возвращаем Колобка в центр
-            resetKolobokToCenter();
+            // Возвращаем Колобка на стартовую позицию (выше центра)
+            resetKolobokToStart();
             
             // Убираем класс возврата
             kolobok.classList.remove('returning');
             kolobok.classList.remove('dragging');
         }
 
-        // Возврат Колобка в центр
-        function resetKolobokToCenter() {
+        // Возврат Колобка на стартовую позицию
+        function resetKolobokToStart() {
             kolobok.style.left = '50%';
-            kolobok.style.top = '50%';
+            kolobok.style.top = '45%';
             kolobok.style.transform = 'translate(-50%, -50%)';
-            kolobok.style.width = '120px';
+            kolobok.style.width = '140px';
         }
 
         // Начало перетаскивания
@@ -608,23 +608,24 @@
             container.classList.add('shake');
             setTimeout(() => container.classList.remove('shake'), 500);
             
-            // Возвращаем Колобка в центр
-            returnToCenter();
+            // Возвращаем Колобка на старт
+            returnToStart();
         }
 
-        // Возврат в центр
-        function returnToCenter() {
+        // Возврат на стартовую позицию
+        function returnToStart() {
             kolobok.classList.add('returning');
             
             const containerRect = container.getBoundingClientRect();
             const kolobokWidth = kolobok.offsetWidth;
             const kolobokHeight = kolobok.offsetHeight;
             
-            const centerLeft = (containerRect.width / 2) - (kolobokWidth / 2);
-            const centerTop = (containerRect.height / 2) - (kolobokHeight / 2);
+            // Стартовая позиция: центр по горизонтали, 45% сверху
+            const startLeft = (containerRect.width / 2) - (kolobokWidth / 2);
+            const startTop = (containerRect.height * 0.45) - (kolobokHeight / 2);
             
-            kolobok.style.left = centerLeft + 'px';
-            kolobok.style.top = centerTop + 'px';
+            kolobok.style.left = startLeft + 'px';
+            kolobok.style.top = startTop + 'px';
             kolobok.style.transform = 'none';
         }
 
@@ -639,8 +640,8 @@
             // Показываем лису
             fox.classList.remove('hidden');
             
-            // Ставим Колобка в центр
-            resetKolobokToCenter();
+            // Ставим Колобка на старт
+            resetKolobokToStart();
             
             // Скрываем экран победы
             winScreen.style.display = 'none';
@@ -666,3 +667,4 @@
     </script>
 </body>
 </html>
+
